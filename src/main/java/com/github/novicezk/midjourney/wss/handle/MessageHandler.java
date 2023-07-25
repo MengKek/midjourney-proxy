@@ -3,24 +3,36 @@ package com.github.novicezk.midjourney.wss.handle;
 import cn.hutool.core.text.CharSequenceUtil;
 import com.github.novicezk.midjourney.Constants;
 import com.github.novicezk.midjourney.enums.MessageType;
+import com.github.novicezk.midjourney.request.AttachmentRequest;
+import com.github.novicezk.midjourney.service.CosService;
 import com.github.novicezk.midjourney.support.DiscordHelper;
 import com.github.novicezk.midjourney.support.Task;
 import com.github.novicezk.midjourney.support.TaskQueueHelper;
+import com.github.novicezk.midjourney.util.FileUtil;
+import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.utils.data.DataArray;
 import net.dv8tion.jda.api.utils.data.DataObject;
 
 import javax.annotation.Resource;
+import java.io.File;
 
+@Log4j2
 public abstract class MessageHandler {
 	@Resource
 	protected TaskQueueHelper taskQueueHelper;
 	@Resource
 	protected DiscordHelper discordHelper;
+	@Resource
+	private FileUtil fileUtil;
+	@Resource
+	private CosService cosService;
 
 	public abstract void handle(MessageType messageType, DataObject message);
 
 	public abstract void handle(MessageType messageType, Message message);
+
+	private static final String LOCAL_URL = "/root/imgs";
 
 	protected String getMessageContent(DataObject message) {
 		return message.hasKey("content") ? message.getString("content") : "";
@@ -83,7 +95,18 @@ public abstract class MessageHandler {
 		if (CharSequenceUtil.startWith(imageUrl, cdn)) {
 			return imageUrl;
 		}
-		return CharSequenceUtil.replaceFirst(imageUrl, DiscordHelper.DISCORD_CDN_URL, cdn);
+		String result = null;
+		try {
+			String fileOldUrl = CharSequenceUtil.replaceFirst(imageUrl, DiscordHelper.DISCORD_CDN_URL, cdn);
+			String localFileAddr = fileUtil.downloadFile(fileOldUrl, LOCAL_URL);
+			AttachmentRequest attachmentRequest = new AttachmentRequest();
+			attachmentRequest.setAddress("mid-proxy-img");
+			result = cosService.uploadFile(new File(localFileAddr), attachmentRequest);
+		}catch (Exception e){
+			log.error("转化文件地址报错", e);
+			System.out.println(e);
+		}
+		return result;
 	}
 
 }
