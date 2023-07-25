@@ -32,7 +32,7 @@ public abstract class MessageHandler {
 
 	public abstract void handle(MessageType messageType, Message message);
 
-	private static final String LOCAL_URL = "/root/imgs";
+	private static final String LOCAL_URL = "~";
 
 	protected String getMessageContent(DataObject message) {
 		return message.hasKey("content") ? message.getString("content") : "";
@@ -88,19 +88,23 @@ public abstract class MessageHandler {
 	}
 
 	protected String replaceCdnUrl(String imageUrl) {
+		String fileOldUrl = null;
 		if (CharSequenceUtil.isBlank(imageUrl)) {
 			return imageUrl;
-		}
-		String cdn = this.discordHelper.getCdn();
-		if (CharSequenceUtil.startWith(imageUrl, cdn)) {
-			return imageUrl;
+		}else{
+			String cdn = this.discordHelper.getCdn();
+			if (CharSequenceUtil.startWith(imageUrl, cdn)) {
+				fileOldUrl = imageUrl;
+			}else{
+				fileOldUrl = CharSequenceUtil.replaceFirst(imageUrl, DiscordHelper.DISCORD_CDN_URL, cdn);
+			}
 		}
 		String result = null;
 		try {
-			String fileOldUrl = CharSequenceUtil.replaceFirst(imageUrl, DiscordHelper.DISCORD_CDN_URL, cdn);
 			String localFileAddr = fileUtil.downloadFile(fileOldUrl, LOCAL_URL);
 			AttachmentRequest attachmentRequest = new AttachmentRequest();
 			attachmentRequest.setAddress("mid-proxy-img");
+			log.info("localFileAddr: {}", localFileAddr);
 			result = cosService.uploadFile(new File(localFileAddr), attachmentRequest);
 		}catch (Exception e){
 			log.error("转化文件地址报错", e);
