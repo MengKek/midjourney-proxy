@@ -54,7 +54,7 @@ public class SubmitResultVO {
 		return new SubmitResultVO(code, description, null);
 	}
 
-	private SubmitResultVO(int code, String description, String result) {
+	public SubmitResultVO(int code, String description, String result) {
 		this.code = code;
 		this.description = description;
 		this.result = result;

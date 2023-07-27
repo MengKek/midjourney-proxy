@@ -1,6 +1,7 @@
 package spring.config;
 
 import com.github.novicezk.midjourney.ProxyProperties;
+import com.github.novicezk.midjourney.enums.TranslateWay;
 import com.github.novicezk.midjourney.service.TaskStoreService;
 import com.github.novicezk.midjourney.service.TranslateService;
 import com.github.novicezk.midjourney.service.store.InMemoryTaskStoreServiceImpl;
@@ -31,23 +32,29 @@ public class BeanConfig {
 
 	@Bean
 	TranslateService translateService(ProxyProperties properties) {
-		return switch (properties.getTranslateWay()) {
-			case BAIDU -> new BaiduTranslateServiceImpl(properties.getBaiduTranslate());
-			case GPT -> new GPTTranslateServiceImpl(properties);
-			default -> prompt -> prompt;
-		};
+		TranslateWay translateWay = properties.getTranslateWay();
+		if (translateWay == TranslateWay.BAIDU) {
+			return new BaiduTranslateServiceImpl(properties.getBaiduTranslate());
+		} else if (translateWay == TranslateWay.GPT) {
+			return new GPTTranslateServiceImpl(properties);
+		} else {
+			return prompt -> prompt;
+		}
 	}
 
 	@Bean
 	TaskStoreService taskStoreService(ProxyProperties proxyProperties, RedisConnectionFactory redisConnectionFactory) {
 		ProxyProperties.TaskStore.Type type = proxyProperties.getTaskStore().getType();
 		Duration timeout = proxyProperties.getTaskStore().getTimeout();
-		return switch (type) {
-			case IN_MEMORY -> new InMemoryTaskStoreServiceImpl(timeout);
-			case REDIS -> new RedisTaskStoreServiceImpl(timeout, taskRedisTemplate(redisConnectionFactory));
-		};
-	}
 
+		if (type == ProxyProperties.TaskStore.Type.IN_MEMORY) {
+			return new InMemoryTaskStoreServiceImpl(timeout);
+		} else if (type == ProxyProperties.TaskStore.Type.REDIS) {
+			return new RedisTaskStoreServiceImpl(timeout, taskRedisTemplate(redisConnectionFactory));
+		}
+
+		throw new IllegalArgumentException("Invalid TaskStore type: " + type);
+	}
 	@Bean
 	RedisTemplate<String, Task> taskRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
 		RedisTemplate<String, Task> redisTemplate = new RedisTemplate<>();

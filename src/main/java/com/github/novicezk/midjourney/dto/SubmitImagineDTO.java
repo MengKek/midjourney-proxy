@@ -17,4 +17,6 @@ public class SubmitImagineDTO extends BaseSubmitDTO {
 	@ApiModelProperty(value = "垫图base64")
 	private String base64;
 
+	private Long userId;
+
 }

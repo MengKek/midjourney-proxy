@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.github.novicezk.midjourney.mapper.UserMapper">
+
+    <!-- Insert a new user record -->
+    <insert id="insert" parameterType="com.github.novicezk.midjourney.domain.User">
+        INSERT INTO `user` (
+            `nickname`, `account`, `password`, `avatar`, `role`, `integral`,
+            `vip_expire_time`, `svip_expire_time`, `status`, `ip`, `create_time`, `update_time`
+        )
+        VALUES (
+                   #{nickname}, #{account}, #{password}, #{avatar}, #{role}, #{integral},
+                   #{vipExpireTime}, #{svipExpireTime}, #{status}, #{ip}, #{createTime}, #{updateTime}
+               )
+    </insert>
+
+    <!-- Update an existing user record -->
+    <update id="update" parameterType="com.github.novicezk.midjourney.domain.User">
+        UPDATE `user`
+        SET
+            `nickname` = #{nickname},
+            `account` = #{account},
+            `password` = #{password},
+            `avatar` = #{avatar},
+            `role` = #{role},
+            `integral` = #{integral},
+            `vip_expire_time` = #{vipExpireTime},
+            `svip_expire_time` = #{svipExpireTime},
+            `status` = #{status},
+            `ip` = #{ip},
+            `update_time` = #{updateTime}
+        WHERE `id` = #{id}
+    </update>
+
+    <!-- Delete a user record by ID -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM `user`
+        WHERE `id` = #{id}
+    </delete>
+
+    <!-- Select a user record by ID -->
+    <select id="selectById" parameterType="java.lang.Long" resultType="com.github.novicezk.midjourney.domain.User">
+        SELECT *
+        FROM `user`
+        WHERE `id` = #{id}
+    </select>
+
+    <!-- Select all user records -->
+    <select id="selectAll" resultType="com.github.novicezk.midjourney.domain.User">
+        SELECT *
+        FROM `user`
+    </select>
+
+</mapper>

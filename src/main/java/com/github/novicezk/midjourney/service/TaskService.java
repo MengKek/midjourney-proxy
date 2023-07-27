@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface TaskService {
 
-	SubmitResultVO submitImagine(Task task, DataUrl dataUrl);
+	SubmitResultVO submitImagine(Task task, DataUrl dataUrl, Long userId);
 
 	SubmitResultVO submitUpscale(Task task, String targetMessageId, String targetMessageHash, int index,  int messageFlags);
 

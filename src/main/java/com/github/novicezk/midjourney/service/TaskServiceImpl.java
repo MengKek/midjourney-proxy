@@ -1,7 +1,11 @@
 package com.github.novicezk.midjourney.service;
 
 import com.github.novicezk.midjourney.ReturnCode;
+import com.github.novicezk.midjourney.domain.Turnover;
+import com.github.novicezk.midjourney.domain.User;
 import com.github.novicezk.midjourney.enums.BlendDimensions;
+import com.github.novicezk.midjourney.mapper.TurnoverMapper;
+import com.github.novicezk.midjourney.mapper.UserMapper;
 import com.github.novicezk.midjourney.result.Message;
 import com.github.novicezk.midjourney.result.SubmitResultVO;
 import com.github.novicezk.midjourney.support.Task;
@@ -12,8 +16,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -23,9 +30,14 @@ public class TaskServiceImpl implements TaskService {
 	private final DiscordService discordService;
 	private final TaskQueueHelper taskQueueHelper;
 
+	@Resource
+	private TurnoverMapper turnoverMapper;
+	@Resource
+	private UserMapper userMapper;
+
 	@Override
-	public SubmitResultVO submitImagine(Task task, DataUrl dataUrl) {
-		return this.taskQueueHelper.submitTask(task, () -> {
+	public SubmitResultVO submitImagine(Task task, DataUrl dataUrl, Long userId) {
+		SubmitResultVO submitResultVO = this.taskQueueHelper.submitTask(task, () -> {
 			if (dataUrl != null) {
 				String taskFileName = task.getId() + "." + MimeTypeUtils.guessFileSuffix(dataUrl.getMimeType());
 				Message<String> uploadResult = this.discordService.upload(taskFileName, dataUrl);
@@ -40,10 +52,38 @@ public class TaskServiceImpl implements TaskService {
 				task.setPrompt(sendImageResult.getResult() + " " + task.getPrompt());
 				task.setPromptEn(sendImageResult.getResult() + " " + task.getPromptEn());
 				task.setDescription("/imagine " + task.getPrompt());
-				this.taskStoreService.save(task);
+//				this.taskStoreService.save(task); todo k
 			}
 			return this.discordService.imagine(task.getPromptEn());
 		});
+
+		if(Objects.isNull(userId)){
+			return submitResultVO;
+		}
+		User user = userMapper.selectById(userId);
+		if(Objects.isNull(user)){
+			log.error("用户不存在，无法扣积分!");
+			return submitResultVO;
+		}
+		if(user.getIntegral() < 300){
+			SubmitResultVO vo = new SubmitResultVO(-1, "积分不足", task.getId());
+			return vo;
+		}
+
+		Turnover turnover = new Turnover();
+		turnover.setUserId(userId);
+		turnover.setDescribe("高级绘画");
+		turnover.setValue("-300积分");
+		turnover.setCreateTime(LocalDateTime.now());
+		turnover.setUpdateTime(LocalDateTime.now());
+		turnoverMapper.insert(turnover);
+
+
+		user.setIntegral(user.getIntegral() - 300);
+		userMapper.update(user);
+
+		log.info("高级绘画 扣除用户 {} 积分：300 ", userId);
+		return submitResultVO;
 	}
 
 	@Override

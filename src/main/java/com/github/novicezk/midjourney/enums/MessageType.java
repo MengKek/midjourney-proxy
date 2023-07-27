@@ -14,13 +14,16 @@ public enum MessageType {
 	 * 删除.
 	 */
 	DELETE;
-
 	public static MessageType of(String type) {
-		return switch (type) {
-			case "MESSAGE_CREATE" -> CREATE;
-			case "MESSAGE_UPDATE" -> UPDATE;
-			case "MESSAGE_DELETE" -> DELETE;
-			default -> null;
-		};
+		switch (type) {
+			case "MESSAGE_CREATE":
+				return MessageType.CREATE;
+			case "MESSAGE_UPDATE":
+				return MessageType.UPDATE;
+			case "MESSAGE_DELETE":
+				return MessageType.DELETE;
+			default:
+				return null;
+		}
 	}
 }
