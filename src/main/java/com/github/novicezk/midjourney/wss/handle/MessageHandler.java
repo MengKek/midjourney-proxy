@@ -88,17 +88,7 @@ public abstract class MessageHandler {
 	}
 
 	protected String replaceCdnUrl(String imageUrl) {
-		String fileOldUrl = null;
-		if (CharSequenceUtil.isBlank(imageUrl)) {
-			return imageUrl;
-		}else{
-			String cdn = this.discordHelper.getCdn();
-			if (CharSequenceUtil.startWith(imageUrl, cdn)) {
-				fileOldUrl = imageUrl;
-			}else{
-				fileOldUrl = CharSequenceUtil.replaceFirst(imageUrl, DiscordHelper.DISCORD_CDN_URL, cdn);
-			}
-		}
+		String fileOldUrl = imageUrl;
 		String result = null;
 		try {
 			String localFileAddr = fileUtil.downloadFile(fileOldUrl, LOCAL_URL);
