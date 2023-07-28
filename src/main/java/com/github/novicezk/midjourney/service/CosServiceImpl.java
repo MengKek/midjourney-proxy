@@ -9,11 +9,10 @@ import okhttp3.*;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.io.IOException;
 
 @Log4j2
 @Service
-public class CosServiceImpl implements CosService {
+public class CosServiceImpl implements CosService{
 
     private static final String BASE_URL = "https://www.aigczhi.cn/api/attachment";
 //    private static final String BASE_URL = "http://localhost:10521/api/attachment";
@@ -36,18 +35,18 @@ public class CosServiceImpl implements CosService {
         try {
             Response response = client.newCall(request).execute();
             JSONObject entries ;
-            if (response.isSuccessful() && response.body() != null) {
+            if (response.isSuccessful()) {
                 String string = response.body().string();
                 entries = JSONUtil.parseObj(string);
-                System.out.println("上传成功！");
-                System.out.println("服务器返回的数据：" + string);
+                log.info("上传成功！");
+                log.info("服务器返回的数据：" + string);
             } else {
-                System.out.println("上传失败！" + JSONUtil.toJsonStr(response));
-                return null;
+                log.error("上传失败！");
+                return "";
             }
             return entries.get("message").toString();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            log.error("上传失败,报错:", e);
         }
         return "";
     }

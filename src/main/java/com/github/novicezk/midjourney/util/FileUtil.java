@@ -15,6 +15,8 @@ import java.util.UUID;
 public class FileUtil {
 
     public String downloadFile(String fileUrl, String localFilePath) {
+        InputStream inputStream = null;
+        FileOutputStream outputStream = null;
         try {
             log.info("downloadFile {} {}", fileUrl,  localFilePath);
             URL url = new URL(fileUrl);
@@ -29,10 +31,8 @@ public class FileUtil {
             if (!localFile.getParentFile().exists()) {
                 localFile.getParentFile().mkdirs();
             }
-
-            InputStream inputStream = url.openStream();
-            FileOutputStream outputStream = new FileOutputStream(destinationPath);
-
+            inputStream = url.openStream();
+            outputStream = new FileOutputStream(destinationPath);
             byte[] buffer = new byte[1024];
             int bytesRead;
             while ((bytesRead = inputStream.read(buffer)) != -1) {
@@ -41,10 +41,26 @@ public class FileUtil {
 
             outputStream.close();
             inputStream.close();
-            System.out.println("File downloaded successfully to: " + destinationPath);
-            return destinationPath;
+            String absolutePath = localFile.getAbsolutePath();
+            log.info("File downloaded successfully to: " + absolutePath);
+            return absolutePath;
         } catch (IOException e) {
-            System.err.println("Error downloading the file: " + e.getMessage());
+            log.error("Error downloading the file: " + e);
+        }finally {
+            if(inputStream != null){
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(outputStream != null){
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return null;
     }
