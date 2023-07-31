@@ -9,12 +9,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -23,6 +18,7 @@ import java.util.Objects;
 import java.util.Set;
 
 @Api(tags = "任务查询")
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/task")
 @RequiredArgsConstructor

@@ -92,6 +92,10 @@ public abstract class MessageHandler {
 		String result = null;
 		try {
 			String localFileAddr = fileUtil.downloadFile(fileOldUrl, LOCAL_URL);
+			if(!localFileAddr.endsWith(".webp")){
+				log.info("png url: {}", localFileAddr);
+				return localFileAddr;
+			}
 			AttachmentRequest attachmentRequest = new AttachmentRequest();
 			attachmentRequest.setAddress("mid-proxy-img");
 			log.info("localFileAddr: {}", localFileAddr);

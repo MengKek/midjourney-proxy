@@ -43,6 +43,10 @@ public class FileUtil {
             inputStream.close();
             String absolutePath = localFile.getAbsolutePath();
             log.info("File downloaded successfully to: " + absolutePath);
+
+            if(!fileName.endsWith(".webp")){
+                return "http://43.131.246.99:8082/" + fileName;
+            }
             return absolutePath;
         } catch (IOException e) {
             log.error("Error downloading the file: " + e);
