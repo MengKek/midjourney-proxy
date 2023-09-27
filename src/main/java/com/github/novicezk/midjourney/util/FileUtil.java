@@ -39,9 +39,8 @@ public class FileUtil {
 
             outputStream.close();
             inputStream.close();
-            String absolutePath = localFile.getAbsolutePath();
-            log.info("File downloaded successfully to: " + absolutePath);
-            return absolutePath;
+            log.info("File downloaded successfully to: " + fileName);
+            return fileName;
         } catch (IOException e) {
             log.error("Error downloading the file: " + e);
         }finally {
