@@ -21,9 +21,7 @@ public class FileUtil {
             log.info("downloadFile {} {}", fileUrl,  localFilePath);
             URL url = new URL(fileUrl);
             String fileName = getFileNameFromUrl(url);
-            if(fileName.endsWith(".webp")){
-                fileName = UUID.randomUUID() + fileName;
-            }
+            fileName = UUID.randomUUID() + fileName;
             String destinationPath = localFilePath + File.separator + fileName;
 
             File localFile = new File(destinationPath);
@@ -43,10 +41,6 @@ public class FileUtil {
             inputStream.close();
             String absolutePath = localFile.getAbsolutePath();
             log.info("File downloaded successfully to: " + absolutePath);
-
-            if(!fileName.endsWith(".webp")){
-                return "http://43.131.246.99:8082/" + fileName;
-            }
             return absolutePath;
         } catch (IOException e) {
             log.error("Error downloading the file: " + e);

@@ -16,6 +16,8 @@ import net.dv8tion.jda.api.utils.data.DataObject;
 
 import javax.annotation.Resource;
 import java.io.File;
+import java.net.URI;
+import java.net.URL;
 
 @Log4j2
 public abstract class MessageHandler {
@@ -87,15 +89,22 @@ public abstract class MessageHandler {
 		return null;
 	}
 
+	public String trimUrl(String urlWithParams) {
+		URI uri = null;
+		try {
+			URL url = new URL(urlWithParams);
+			uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), null, null);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return uri.toString();
+	}
+
 	protected String replaceCdnUrl(String imageUrl) {
-		String fileOldUrl = imageUrl;
+		String fileOldUrl = trimUrl(imageUrl);
 		String result = null;
 		try {
 			String localFileAddr = fileUtil.downloadFile(fileOldUrl, LOCAL_URL);
-			if(!localFileAddr.endsWith(".webp")){
-				log.info("png url: {}", localFileAddr);
-				return localFileAddr;
-			}
 			AttachmentRequest attachmentRequest = new AttachmentRequest();
 			attachmentRequest.setAddress("mid-proxy-img");
 			log.info("localFileAddr: {}", localFileAddr);
