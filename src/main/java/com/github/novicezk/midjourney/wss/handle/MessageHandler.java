@@ -105,8 +105,10 @@ public abstract class MessageHandler {
 		String result = null;
 		try {
 			String localFileAddr = fileUtil.downloadFile(fileOldUrl, LOCAL_URL);
-			result = "http://43.131.246.99:8082/" + "/" + localFileAddr;
-			return result;
+			AttachmentRequest attachmentRequest = new AttachmentRequest();
+			attachmentRequest.setAddress("mid-proxy-img");
+			log.info("localFileAddr: {}", localFileAddr);
+			result = cosService.uploadFile(new File(localFileAddr), attachmentRequest);
 		}catch (Exception e){
 			log.error("转化文件地址报错", e);
 			System.out.println(e);
